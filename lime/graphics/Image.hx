@@ -578,6 +578,16 @@ class Image {
 		
 	}
 	
+
+	public static function fromFileAsync (path:String, onload: lime.graphics.Image->Void):Image {
+		
+		if (path == null) return null;
+		var image = new Image ();
+		image.__fromFile (path, onload);
+		return image;
+		
+	}
+
 	
 	#if (js && html5)
 	public static function fromImageElement (image:ImageElement):Image {
@@ -867,8 +877,18 @@ class Image {
 	public static function loadFromFile (path:String):Future<Image> {
 		
 		if (path == null) return Future.withValue (null);
+
+		#if kha
 		
-		#if (js && html5 && !display)
+		var promise = new Promise<Image> ();
+
+		Image.fromFileAsync (path.substring (path.lastIndexOf('/') + 1), function (image: lime.graphics.Image) {
+			promise.complete (image);
+		});
+
+		return promise.future;
+
+		#elseif (js && html5 && !display)
 		
 		return HTML5HTTPRequest.loadImage (path);
 		
@@ -1394,7 +1414,54 @@ class Image {
 	
 	private function __fromFile (path:String, onload:Image->Void = null, onerror:Void->Void = null):Void {
 		
-		#if (js && html5)
+		#if (kha && !macro)
+
+		kha.Assets.loadBlobFromPath (path, function (blob: kha.Blob) {
+
+			try {
+				var bytes = blob.bytes;
+				var input = new BytesInput (bytes, 0, bytes.length);
+				var png = new Reader (input).read ();
+				var data = Tools.extract32 (png);
+				var header = Tools.getHeader (png);
+				
+				var data = new js.html.Uint8Array (data.getData());
+				var length = header.width * header.height;
+				var b, g, r, a;
+				
+				for (i in 0...length) {
+					
+					var b = data[i * 4];
+					var g = data[i * 4 + 1];
+					var r = data[i * 4 + 2];
+					var a = data[i * 4 + 3];
+					
+					data[i * 4] = r;
+					data[i * 4 + 1] = g;
+					data[i * 4 + 2] = b;
+					data[i * 4 + 3] = a;
+					
+				}
+				
+				buffer = new ImageBuffer (data, header.width, header.height);
+
+				if (buffer != null) {
+					
+					__fromImageBuffer (buffer);
+					
+					if (onload != null) {
+						
+						onload (this);
+						
+					}
+					
+				}
+				
+			} catch (e:Dynamic) {}
+
+		});
+
+		#elseif (js && html5)
 			
 			var image = new JSImage ();
 			

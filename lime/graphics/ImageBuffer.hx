@@ -5,7 +5,9 @@ import haxe.io.Bytes;
 import lime.graphics.cairo.CairoSurface;
 import lime.utils.UInt8Array;
 
-#if (js && html5)
+#if kha
+
+#elseif (js && html5)
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.Image in HTMLImage;
@@ -76,7 +78,9 @@ class ImageBuffer {
 		
 		var buffer = new ImageBuffer (data, width, height, bitsPerPixel);
 		
-		#if flash
+		#if kha
+		// TODO
+		#elseif flash
 		if (__srcBitmapData != null) buffer.__srcBitmapData = __srcBitmapData.clone ();
 		#elseif (js && html5)
 		if (data != null) {
