@@ -49,7 +49,7 @@ import sys.FileSystem;
 		
 		var data, manifest, library;
 		
-		data = '{"name":null,"assets":"aoy4:pathy19:assets%2Fopenfl.pngy4:sizei11126y4:typey5:IMAGEy2:idR1y7:preloadtgh","version":2,"libraryArgs":[],"libraryType":null}';
+		data = '{"name":null,"assets":"aoy4:pathy25:assets%2Fwabbit_alpha.pngy4:sizei449y4:typey5:IMAGEy2:idR1y7:preloadtgh","version":2,"libraryArgs":[],"libraryType":null}';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("default", library);
@@ -65,7 +65,7 @@ import sys.FileSystem;
 }
 
 #if !macro
-@:image("Assets/openfl.png") #if display private #end class __ASSET__assets_openfl_png extends lime.graphics.Image {}
+@:image("../Assets/wabbit_alpha.png") #if display private #end class __ASSET__assets_wabbit_alpha_png extends lime.graphics.Image {}
 #end
 
 /*
