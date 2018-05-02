@@ -22,7 +22,7 @@ import lime._backend.kha.KhaManifestResources;
 	
 	public static function main () {
 		
-		kha.System.init({title: "OpenFL Test", width: 1024, height: 768}, function () {
+		kha.System.init({title: "OpenFL Test", width: 800, height: 600}, function () {
 			kha.Assets.loadEverything(function () {
 				var projectName = "::APP_FILE::";
 				
@@ -48,7 +48,7 @@ import lime._backend.kha.KhaManifestResources;
 							display: 0,
 							fullscreen: false,
 							hardware: true,
-							height: 768,
+							height: 600,
 							hidden: #if munit true #else false #end,
 							maximized: false,
 							minimized: false,
@@ -57,7 +57,7 @@ import lime._backend.kha.KhaManifestResources;
 							stencilBuffer: true,
 							title: "OpenFL Test",
 							vsync: true,
-							width: 1024,
+							width: 800,
 							x: 100,
 							y: 100
 						}
