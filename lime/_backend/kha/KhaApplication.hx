@@ -88,6 +88,8 @@ class KhaApplication {
 	public function exec ():Int {
 		
 		#if !macro
+		kha.input.Mouse.get().notify(mouseDown, mouseUp, mouseMove, mouseWheel);
+
 		kha.System.notifyOnRender(function (framebuffer:kha.Framebuffer) {
 			
 			for (renderer in parent.renderers) {
@@ -109,7 +111,51 @@ class KhaApplication {
 		return 0;
 		
 	}
-	
+
+
+	private function mouseDown (button:Int, x:Int, y:Int):Void {
+
+		var window = parent.windowByID.get (-1);
+		
+		if (window != null) {
+			window.onMouseDown.dispatch (x, y, button);
+		}
+
+	}
+
+
+	private function mouseUp (button:Int, x:Int, y:Int):Void {
+
+		var window = parent.windowByID.get (-1);
+		
+		if (window != null) {
+			window.onMouseUp.dispatch (x, y, button);
+		}
+
+	}
+
+
+	private function mouseMove (x:Int, y:Int, mx:Int, my:Int):Void {
+
+		var window = parent.windowByID.get (-1);
+		
+		if (window != null) {
+			window.onMouseMove.dispatch (x, y);
+			window.onMouseMoveRelative.dispatch (mx, my);
+		}
+
+	}
+
+	private function mouseWheel (amount:Int):Void {
+
+		var window = parent.windowByID.get (-1);
+		
+		if (window != null) {
+			window.onMouseWheel.dispatch (0, amount);
+		}
+
+	}
+
 	
 	public function exit ():Void {
 		
