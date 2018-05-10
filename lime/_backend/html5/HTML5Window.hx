@@ -10,6 +10,7 @@ import js.html.InputElement;
 import js.html.InputEvent;
 import js.html.LinkElement;
 import js.html.MouseEvent;
+import js.html.Node;
 import js.html.TouchEvent;
 import js.html.ClipboardEvent;
 import js.Browser;
@@ -307,7 +308,15 @@ class HTML5Window {
 		
 		if (enableTextEvents) {
 			
-			Timer.delay (function () { textInput.focus (); }, 20);
+			if (event.relatedTarget == null || isDescendent (cast event.relatedTarget)) {
+				
+				Timer.delay (function () {
+					
+					if (enableTextEvents) textInput.focus ();
+					
+				}, 20);
+				
+			}
 			
 		}
 		
@@ -383,13 +392,11 @@ class HTML5Window {
 		
 		if (textInput.value != dummyCharacter) {
 			
-			if (textInput.value.charAt (0) == dummyCharacter) {
+			var value = StringTools.replace (textInput.value, dummyCharacter, "");
+			
+			if (value.length > 0) {
 				
-				parent.onTextInput.dispatch (textInput.value.substr (1));
-				
-			} else {
-				
-				parent.onTextInput.dispatch (textInput.value);
+				parent.onTextInput.dispatch (value);
 				
 			}
 			
@@ -719,6 +726,27 @@ class HTML5Window {
 	}
 	
 	
+	private function isDescendent (node:Node):Bool {
+		
+		if (node == element) return true;
+		
+		while (node != null) {
+			
+			if (node.parentNode == element) {
+				
+				return true;
+				
+			}
+			
+			node = node.parentNode;
+			
+		}
+		
+		return false;
+		
+	}
+	
+	
 	public function move (x:Int, y:Int):Void {
 		
 		
@@ -801,7 +829,11 @@ class HTML5Window {
 				untyped (textInput.style).pointerEvents = 'none';
 				textInput.style.zIndex = "-10000000";
 				
-				Browser.document.body.appendChild (textInput);
+			}
+			
+			if (textInput.parentNode == null) {
+				
+				element.appendChild (textInput);
 				
 			}
 			

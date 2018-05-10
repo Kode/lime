@@ -21,6 +21,8 @@ import flash.media.Sound;
 @:noDebug
 #end
 
+@:access(lime.text.Font)
+
 
 class AssetLibrary {
 	
@@ -306,7 +308,19 @@ class AssetLibrary {
 	
 	public function getPath (id:String):String {
 		
-		return paths.get (id);
+		if (paths.exists (id)) {
+			
+			return paths.get (id);
+			
+		} else if (pathGroups.exists (id)) {
+			
+			return pathGroups.get (id)[0];
+			
+		} else {
+			
+			return null;
+			
+		}
 		
 	}
 	
@@ -472,7 +486,7 @@ class AssetLibrary {
 						
 						var future = loadAudioBuffer (id);
 						future.onProgress (load_onProgress.bind (id));
-						future.onError (load_onError.bind (id));
+						future.onError (loadAudioBuffer_onError.bind (id));
 						future.onComplete (loadAudioBuffer_onComplete.bind (id));
 					
 					case TEXT:
@@ -560,7 +574,7 @@ class AssetLibrary {
 			var font:Font = Type.createInstance (classTypes.get (id), []);
 			
 			#if (js && html5)
-			return Font.loadFromName (font.name);
+			return font.__loadFromName (font.name);
 			#else
 			return Future.withValue (font);
 			#end
@@ -856,6 +870,31 @@ class AssetLibrary {
 		}
 		
 		__assetLoaded (id);
+		
+	}
+	
+	
+	private function loadAudioBuffer_onError (id:String, message:Dynamic):Void {
+		
+		#if (js && html5)
+		
+		if (message != null && message != "") {
+			
+			Log.warn ("Could not load \"" + id + "\": " + Std.string (message));
+			
+		} else {
+			
+			Log.warn ("Could not load \"" + id + "\"");
+			
+		}
+		
+		loadAudioBuffer_onComplete (id, new AudioBuffer ());
+		
+		#else
+		
+		load_onError (id, message);
+		
+		#end
 		
 	}
 	

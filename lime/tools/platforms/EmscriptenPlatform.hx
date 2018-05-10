@@ -37,7 +37,19 @@ class EmscriptenPlatform extends PlatformTarget {
 	
 	public override function build ():Void {
 		
-		if (!project.defines.exists ("EMSCRIPTEN_SDK")) {
+		var sdkPath = null;
+		
+		if (project.defines.exists ("EMSCRIPTEN_SDK")) {
+			
+			sdkPath = project.defines.get ("EMSCRIPTEN_SDK");
+			
+		} else if (project.environment.exists ("EMSCRIPTEN_SDK")) {
+			
+			sdkPath = project.environment.get ("EMSCRIPTEN_SDK");
+			
+		}
+		
+		if (sdkPath == null) {
 			
 			LogHelper.error ("You must define EMSCRIPTEN_SDK with the path to your Emscripten SDK");
 			
@@ -59,15 +71,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		
 		CPPHelper.compile (project, targetDirectory + "/obj", [ "-Demscripten", "-Dwebgl", "-Dstatic_link" ]);
 		
-		if (project.environment.exists ("EMSCRIPTEN_SDK")) {
-			
-			project.path (project.environment.get ("EMSCRIPTEN_SDK"));
-			
-		} else if (project.defines.exists ("EMSCRIPTEN_SDK")) {
-			
-			project.path (project.defines.get ("EMSCRIPTEN_SDK"));
-			
-		}
+		project.path (sdkPath);
 		
 		ProcessHelper.runCommand ("", "emcc", [ targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o" ], true, false, true);
 		

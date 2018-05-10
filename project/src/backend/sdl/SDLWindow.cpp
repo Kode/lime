@@ -46,6 +46,11 @@ namespace lime {
 		}
 		#endif
 		
+		#ifndef EMSCRIPTEN
+		SDL_SetHint (SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+		#endif
+		
+		
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
 			sdlFlags |= SDL_WINDOW_OPENGL;
@@ -117,6 +122,17 @@ namespace lime {
 		}
 		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+		
+		#if defined (IPHONE) || defined (APPLETV)
+		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
+			
+			SDL_DestroyWindow (sdlWindow);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			
+			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+			
+		}
+		#endif
 		
 		if (!sdlWindow) {
 			

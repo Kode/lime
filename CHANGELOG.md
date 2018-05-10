@@ -1,3 +1,66 @@
+6.3.0 (03/04/2018)
+------------------
+
+* Updated SDL to 2.0.8
+* Updated howler.js to 2.0.9
+* Updated Android NDK platform to a minimum of API 14
+* Updated macOS minimum support version to 10.9
+* Added support for `-D foo` in addition to `-Dfoo`
+* Added support for `--` in addition to `-args` for runtime arguments
+* Added catching of key/value runtime arguments as `window.config.parameters`
+* Added support for `--window-` flags at runtime on Lime applications
+* Added a workaround to fix memory leaks in Apple's OpenAL implementation
+* Added initial HTML5 accelerometer sensor support
+* Added support for exporting multiple iOS IPA types when using `lime deploy`
+* Added `ENHANCED` profile to AIR extern types
+* Improved the behavior of `lime setup`
+* Improved the output of `lime help`
+* Improved failed sound loading on HTML5 to print a runtime warning
+* Improved support for multiple threads in OpenAL, Cairo and cURL GC
+* Improved the generation of webfonts to ignore non-essential formats
+* Improved behavior when calling closure compiler to minify JS
+* Improved `openfl.Vector` to typed array conversion to support OpenFL 8
+* Improved `Assets.getPath` to return the first path if using a path group
+* Improved support for `KHR_debug` in OpenGL
+* Improved handling of errors within OpenAL generation of sources and buffers
+* Improved window focus mouse clicks to still fire an event
+* Improvde handling of disposed native `AudioSource` objects
+* Improved support for opening files with spaces in the path
+* Improved the Gradle template to use jcenter instead of maven for dependencies
+* Fixed detection of font family names on some Android 4.x devices
+* Fixed support for `-dce full` with `embed=true` assets on native
+* Fixed a small memory leak in Zlib compress
+* Fixed a small memory leak when using cURL request headers
+* Fixed a small memory leak in `gamepad.guid`
+* Fixed support for a software fallback when GL support is too old
+* Fixed a regression in support for static desktop builds
+* Fixed a possible garbage collection issue in cURL support
+* Fixed calling `UTF8String.substr()` internally without a length field 
+* Fixed request of keyboard input on WebKit when in fullscreen
+* Fixed a possible issue when building on macOS with spaces in the Lime directory
+* Fixed the behavior of `embed="false"` assets on HTML5
+* Fixed a possible race condition in `-Dsimulate-preloader` on Flash target
+* Fixed support for additional iOS icon sizes
+* Fixed fullscreen text input on WebKit browsers
+* Fixed an issue using `Image.fromBase64` in ES6/NPM-based builds
+* Fixed disabling of vsync on native targets when not desired
+
+
+6.2.0 (02/16/2018)
+------------------
+
+* Added new implementation of `Font.renderGlyphs` for native platforms
+* Added generation of font metrics for embedded HTML5 fonts
+* Improved support for ANGLE builds on Windows
+* Improved accuracy of file seeking in streaming OGG Vorbis sounds on native
+* Fixed regression in `renderer.readPixels` when using an OpenGL renderer
+* Fixed addition of an empty character when using arrow keys on HTML5 text input
+* Fixed fallback for OpenGL ES 2.0 on older iOS devices when 3.0 is not available
+* Fixed using environment variables to define the path to the Emscripten SDK
+* Fixed letting the user focus outside a Lime embed when text input is enabled
+* Fixed `FileDialog.save` to require FileSaver.js when using CommonJS
+
+
 6.1.0 (02/07/2018)
 ------------------
 

@@ -70,23 +70,32 @@ class IOSHelper {
 		
 		ProcessHelper.runCommand (workingDirectory, "xcodebuild", archiveCommands);
 		
-		// generate IPA from xcarchive
-		var exportCommands = commands.concat ([]);
-		
-		var exportMethod = project.targetFlags.exists ("adhoc") ? "adhoc"
-			: project.targetFlags.exists ("development") ? "development"
-			: project.targetFlags.exists ("enterprise") ? "enterprise"
-			: "appstore";
-		
-		exportCommands.push ("-exportArchive");
-		exportCommands.push ("-archivePath");
-		exportCommands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
-		exportCommands.push ("-exportOptionsPlist");
-		exportCommands.push (PathHelper.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
-		exportCommands.push ("-exportPath");
-		exportCommands.push (PathHelper.combine ("dist", exportMethod));
-		
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", exportCommands);
+		var supportedExportMethods = [ "adhoc", "development", "enterprise", "appstore" ];
+		var exportMethods = [];
+		for (m in supportedExportMethods) {
+			if (project.targetFlags.exists(m)) {
+				exportMethods.push(m);
+			}
+		}
+
+		if (exportMethods.length == 0) {
+			exportMethods.push("appstore");
+		}
+
+		for (exportMethod in exportMethods) {
+			// generate IPA from xcarchive
+			var exportCommands = commands.concat ([]);
+
+			exportCommands.push ("-exportArchive");
+			exportCommands.push ("-archivePath");
+			exportCommands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
+			exportCommands.push ("-exportOptionsPlist");
+			exportCommands.push (PathHelper.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
+			exportCommands.push ("-exportPath");
+			exportCommands.push (PathHelper.combine ("dist", exportMethod));
+			
+			ProcessHelper.runCommand (workingDirectory, "xcodebuild", exportCommands);
+		}
 		
 	}
 	
@@ -118,7 +127,7 @@ class IOSHelper {
 		
 		if (project.targetFlags.exists ("simulator")) {
 			
-			if (project.targetFlags.exists ("i386")) {
+			if (project.targetFlags.exists ("i386") || project.targetFlags.exists ("32")) {
 				
 				commands.push ("-arch");
 				commands.push ("i386");

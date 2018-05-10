@@ -40,15 +40,15 @@ import haxe.io.Path;
 class Font {
 	
 	
-	public var ascender (get, null):Int;
-	public var descender (get, null):Int;
-	public var height (get, null):Int;
+	public var ascender (default, null):Int;
+	public var descender (default, null):Int;
+	public var height (default, null):Int;
 	public var name (default, null):String;
-	public var numGlyphs (get, null):Int;
+	public var numGlyphs (default, null):Int;
 	public var src:Dynamic;
-	public var underlinePosition (get, null):Int;
-	public var underlineThickness (get, null):Int;
-	public var unitsPerEM (get, null):Int;
+	public var underlinePosition (default, null):Int;
+	public var underlineThickness (default, null):Int;
+	public var unitsPerEM (default, null):Int;
 	
 	@:noCompletion private var __fontID:String;
 	@:noCompletion private var __fontPath:String;
@@ -256,184 +256,199 @@ class Font {
 	
 	public function renderGlyphs (glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
 		
-		//#if (lime_cffi && !macro)
-		//
-		//var uniqueGlyphs = new Map<Int, Bool> ();
-		//
-		//for (glyph in glyphs) {
-			//
-			//uniqueGlyphs.set (glyph, true);
-			//
-		//}
-		//
-		//var glyphList = [];
-		//
-		//for (key in uniqueGlyphs.keys ()) {
-			//
-			//glyphList.push (key);
-			//
-		//}
-		//
-		//NativeCFFI.lime_font_set_size (src, fontSize);
-		//
-		//var bytes = new ByteArray ();
-		//bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
-		//
-		//if (NativeCFFI.lime_font_render_glyphs (src, glyphList, bytes)) {
-			//
-			//bytes.position = 0;
-			//
-			//var count = bytes.readUnsignedInt ();
-			//
-			//var bufferWidth = 128;
-			//var bufferHeight = 128;
-			//var offsetX = 0;
-			//var offsetY = 0;
-			//var maxRows = 0;
-			//
-			//var width, height;
-			//var i = 0;
-			//
-			//while (i < count) {
-				//
-				//bytes.position += 4;
-				//width = bytes.readUnsignedInt ();
-				//height = bytes.readUnsignedInt ();
-				//bytes.position += (4 * 2) + width * height;
-				//
-				//if (offsetX + width > bufferWidth) {
-					//
-					//offsetY += maxRows + 1;
-					//offsetX = 0;
-					//maxRows = 0;
-					//
-				//}
-				//
-				//if (offsetY + height > bufferHeight) {
-					//
-					//if (bufferWidth < bufferHeight) {
-						//
-						//bufferWidth *= 2;
-						//
-					//} else {
-						//
-						//bufferHeight *= 2;
-						//
-					//}
-					//
-					//offsetX = 0;
-					//offsetY = 0;
-					//maxRows = 0;
-					//
-					//// TODO: make this better
-					//
-					//bytes.position = 4;
-					//i = 0;
-					//continue;
-					//
-				//}
-				//
-				//offsetX += width + 1;
-				//
-				//if (height > maxRows) {
-					//
-					//maxRows = height;
-					//
-				//}
-				//
-				//i++;
-				//
-			//}
-			//
-			//var map = new Map<Int, Image> ();
-			//var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 8);
-			//var data = new ByteArray (bufferWidth * bufferHeight);
-			//
-			//bytes.position = 4;
-			//offsetX = 0;
-			//offsetY = 0;
-			//maxRows = 0;
-			//
-			//var index, x, y, image;
-			//
-			//for (i in 0...count) {
-				//
-				//index = bytes.readUnsignedInt ();
-				//width = bytes.readUnsignedInt ();
-				//height = bytes.readUnsignedInt ();
-				//x = bytes.readUnsignedInt ();
-				//y = bytes.readUnsignedInt ();
-				//
-				//if (offsetX + width > bufferWidth) {
-					//
-					//offsetY += maxRows + 1;
-					//offsetX = 0;
-					//maxRows = 0;
-					//
-				//}
-				//
-				//for (i in 0...height) {
-					//
-					//data.position = ((i + offsetY) * bufferWidth) + offsetX;
-					////bytes.readBytes (data, 0, width);
-					//
-					//for (x in 0...width) {
-						//
-						//var byte = bytes.readUnsignedByte ();
-						//data.writeByte (byte);
-						//
-					//}
-					//
-				//}
-				//
-				//image = new Image (buffer, offsetX, offsetY, width, height);
-				//image.x = x;
-				//image.y = y;
-				//
-				//map.set (index, image);
-				//
-				//offsetX += width + 1;
-				//
-				//if (height > maxRows) {
-					//
-					//maxRows = height;
-					//
-				//}
-				//
-			//}
-			//
-			//#if js
-			//buffer.data = data.byteView;
-			//#else
-			//buffer.data = new UInt8Array (data);
-			//#end
-			//
-			//return map;
-			//
-		//}
-		//
-		//#end
+		#if (lime_cffi && !macro)
+		
+		var uniqueGlyphs = new Map<Int, Bool> ();
+		
+		for (glyph in glyphs) {
+			
+			uniqueGlyphs.set (glyph, true);
+			
+		}
+		
+		var glyphList = [];
+		
+		for (key in uniqueGlyphs.keys ()) {
+			
+			glyphList.push (key);
+			
+		}
+		
+		NativeCFFI.lime_font_set_size (src, fontSize);
+		
+		var bytes = Bytes.alloc (0);
+		
+		if (NativeCFFI.lime_font_render_glyphs (src, glyphList, bytes)) {
+			
+			var bytesPosition = 0;
+			var count = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+			
+			var bufferWidth = 128;
+			var bufferHeight = 128;
+			var offsetX = 0;
+			var offsetY = 0;
+			var maxRows = 0;
+			
+			var width, height;
+			var i = 0;
+			
+			while (i < count) {
+				
+				bytesPosition += 4;
+				width = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+				height = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+				
+				bytesPosition += (4 * 2) + width * height;
+				
+				if (offsetX + width > bufferWidth) {
+					
+					offsetY += maxRows + 1;
+					offsetX = 0;
+					maxRows = 0;
+					
+				}
+				
+				if (offsetY + height > bufferHeight) {
+					
+					if (bufferWidth < bufferHeight) {
+						
+						bufferWidth *= 2;
+						
+					} else {
+						
+						bufferHeight *= 2;
+						
+					}
+					
+					offsetX = 0;
+					offsetY = 0;
+					maxRows = 0;
+					
+					// TODO: make this better
+					
+					bytesPosition = 4;
+					i = 0;
+					continue;
+					
+				}
+				
+				offsetX += width + 1;
+				
+				if (height > maxRows) {
+					
+					maxRows = height;
+					
+				}
+				
+				i++;
+				
+			}
+			
+			var map = new Map<Int, Image> ();
+			var buffer = new ImageBuffer (null, bufferWidth, bufferHeight, 8);
+			var dataPosition = 0;
+			var data = Bytes.alloc (bufferWidth * bufferHeight);
+			
+			bytesPosition = 4;
+			offsetX = 0;
+			offsetY = 0;
+			maxRows = 0;
+			
+			var index, x, y, image;
+			
+			for (i in 0...count) {
+				
+				index = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+				width = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+				height = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+				x = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+				y = bytes.getInt32 (bytesPosition); bytesPosition += 4;
+				
+				if (offsetX + width > bufferWidth) {
+					
+					offsetY += maxRows + 1;
+					offsetX = 0;
+					maxRows = 0;
+					
+				}
+				
+				for (i in 0...height) {
+					
+					dataPosition = ((i + offsetY) * bufferWidth) + offsetX;
+					data.blit (dataPosition, bytes, bytesPosition, width);
+					bytesPosition += width;
+					
+				}
+				
+				image = new Image (buffer, offsetX, offsetY, width, height);
+				image.x = x;
+				image.y = y;
+				
+				map.set (index, image);
+				
+				offsetX += width + 1;
+				
+				if (height > maxRows) {
+					
+					maxRows = height;
+					
+				}
+				
+			}
+			
+			#if js
+			buffer.data = data.byteView;
+			#else
+			buffer.data = new UInt8Array (data);
+			#end
+			
+			return map;
+			
+		}
+		
+		#end
 		
 		return null;
 		
 	}
+	
+	
+	@:noCompletion private function __copyFrom (other:Font):Void {
 		
+		if (other != null) {
+			
+			ascender = other.ascender;
+			descender = other.descender;
+			height = other.height;
+			name = other.name;
+			numGlyphs = other.numGlyphs;
+			src = other.src;
+			underlinePosition = other.underlinePosition;
+			underlineThickness = other.underlineThickness;
+			unitsPerEM = other.unitsPerEM;
+			
+			__fontID = other.__fontID;
+			__fontPath = other.__fontPath;
+			
+			#if lime_cffi
+			__fontPathWithoutDirectory = other.__fontPathWithoutDirectory;
+			#end
+			
+		}
+		
+	}
+	
+	
 	@:noCompletion private function __fromBytes (bytes:Bytes):Void {
 		
 		__fontPath = null;
 		
 		#if (lime_cffi && !macro)
-		
 		__fontPathWithoutDirectory = null;
 		
 		src = NativeCFFI.lime_font_load (bytes);
 		
-		if (src != null && name == null) {
-			
-			name = cast NativeCFFI.lime_font_get_family_name (src);
-			
-		}
-		
+		__initializeSource ();
 		#end
 		
 	}
@@ -444,17 +459,36 @@ class Font {
 		__fontPath = path;
 		
 		#if (lime_cffi && !macro)
-		
 		__fontPathWithoutDirectory = Path.withoutDirectory (__fontPath);
 		
 		src = NativeCFFI.lime_font_load (__fontPath);
 		
-		if (src != null && name == null) {
+		__initializeSource ();
+		#end
+		
+	}
+	
+	
+	private function __initializeSource ():Void {
+		
+		#if (lime_cffi && !macro)
+		if (src != null) {
 			
-			name = cast NativeCFFI.lime_font_get_family_name (src);
+			if (name == null) {
+				
+				name = cast NativeCFFI.lime_font_get_family_name (src);
+				
+			}
+			
+			ascender = NativeCFFI.lime_font_get_ascender (src);
+			descender = NativeCFFI.lime_font_get_descender (src);
+			height = NativeCFFI.lime_font_get_height (src);
+			numGlyphs = NativeCFFI.lime_font_get_num_glyphs (src);
+			underlinePosition = NativeCFFI.lime_font_get_underline_position (src);
+			underlineThickness = NativeCFFI.lime_font_get_underline_thickness (src);
+			unitsPerEM = NativeCFFI.lime_font_get_units_per_em (src);
 			
 		}
-		
 		#end
 		
 	}
@@ -575,100 +609,6 @@ class Font {
 		#end
 		
 	}
-	
-	
-	
-	
-	// Get & Set Methods
-	
-	
-	
-	
-	private function get_ascender ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_ascender (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_descender ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_descender (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_height ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_height (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_numGlyphs ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_num_glyphs (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_underlinePosition ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_underline_position (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_underlineThickness ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_underline_thickness (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_unitsPerEM ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_units_per_em (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	
 	
 	
 }
